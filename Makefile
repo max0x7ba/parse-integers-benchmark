@@ -4,10 +4,10 @@ BUILD := release
 TOOLSET := gcc
 build_dir := ${CURDIR}/${BUILD}/${TOOLSET}
 
-CXX.gcc := g++
-CC.gcc := gcc
-LD.gcc := g++
-AR.gcc := gcc-ar
+CXX.gcc := g++-8
+CC.gcc := gcc-8
+LD.gcc := g++-8
+AR.gcc := gcc-ar-8
 
 CXX.clang := clang++
 CC.clang := clang

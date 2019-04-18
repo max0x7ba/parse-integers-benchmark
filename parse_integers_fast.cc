@@ -147,7 +147,8 @@ int main() {
         for(int run = 0; run < RUNS; ++run) {
             std::ifstream random_ints(random_ints_filename);
             auto old_buf = std::cin.rdbuf(random_ints.rdbuf());
-            freopen(random_ints_filename, "rb", stdin);
+            if(!freopen(random_ints_filename, "rb", stdin))
+                throw;
 
             auto t0 = std::chrono::high_resolution_clock::now();
             int a[1600000];

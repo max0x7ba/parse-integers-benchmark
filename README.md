@@ -18,3 +18,13 @@ seconds,    percent, method
 0.118859546,   70.8, scanf-multi
 0.034033769,   20.3, mmap-parse-faster
 ```
+##### Ubuntu 18.04.2 LTS, g++-8.2.0, Intel Core i7-7700K CPU @ 4.20GHz
+```
+---- Best times ----
+seconds,    percent, method
+0.133155952,  100.0, iostream
+0.102128208,   76.7, scanf
+0.082469185,   61.9, scanf-multi
+0.048661004,   36.5, getchar
+0.025320109,   19.0, mmap-parse-faster
+```
