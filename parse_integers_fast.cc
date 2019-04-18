@@ -167,11 +167,14 @@ int main() {
     }
 
     std::printf("\n---- Best times ----\n");
-    std::printf("seconds,     method\n");
+    std::printf("seconds,    percent, method\n");
     int indexes[method_count];
     for(int i = 0; i < method_count; ++i)
         indexes[i] = i;
     std::sort(indexes, indexes + method_count, [&best_times](int a, int b) { return best_times[a] > best_times[b]; });
-    for(int method = 0; method < method_count; ++method)
-        std::printf("%.9f, %s\n", best_times[indexes[method]], names[indexes[method]]);
+    int worst = indexes[0];
+    for(int method = 0; method < method_count; ++method) {
+        int i = indexes[method];
+        std::printf("%.9f, %6.1f, %s\n", best_times[i], 1e2 * best_times[i] / best_times[worst], names[i]);
+    }
 }
