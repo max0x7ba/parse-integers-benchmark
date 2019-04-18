@@ -8,7 +8,7 @@ make -r run_parse_integers_fast
 ```
 
 ## Example outputs
-### CentOS release 6.10, g++-6.3.0, Intel Core i7-4790 CPU @ 3.60GHz
+##### CentOS release 6.10, g++-6.3.0, Intel Core i7-4790 CPU @ 3.60GHz
 ```
 ---- Best times ----
 seconds,    percent, method
