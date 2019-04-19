@@ -4,10 +4,15 @@ BUILD := release
 TOOLSET := gcc
 build_dir := ${CURDIR}/${BUILD}/${TOOLSET}
 
-CXX.gcc := g++-8
-CC.gcc := gcc-8
-LD.gcc := g++-8
-AR.gcc := gcc-ar-8
+CXX.gcc := g++
+CC.gcc := gcc
+LD.gcc := g++
+AR.gcc := gcc-ar
+
+CXX.gcc-8 := g++-8
+CC.gcc-8 := gcc-8
+LD.gcc-8 := g++-8
+AR.gcc-8 := gcc-ar-8
 
 CXX.clang := clang++
 CC.clang := clang
@@ -22,7 +27,10 @@ AR := ${AR.${TOOLSET}}
 CXXFLAGS.gcc.debug := -Og -fstack-protector-all -fno-omit-frame-pointer # -D_GLIBCXX_DEBUG
 CXXFLAGS.gcc.release := -O3 -march=native -ffast-math -DNDEBUG
 CXXFLAGS.gcc := -pthread -std=gnu++1z -march=native -W{all,extra,error} -g -fmessage-length=0 ${CXXFLAGS.gcc.${BUILD}}
+CXXFLAGS.gcc-8 := ${CXXFLAGS.gcc}
+
 CFLAGS.gcc := -pthread -march=native -W{all,extra} -g -fmessage-length=0 ${CXXFLAGS.gcc.${BUILD}}
+CFLAGS.gcc-8 := ${CFLAGS.gcc}
 
 CXXFLAGS.clang.debug := -O0 -fstack-protector-all
 CXXFLAGS.clang.release := -O3 -march=native -ffast-math -DNDEBUG
