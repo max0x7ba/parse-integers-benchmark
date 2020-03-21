@@ -6,15 +6,24 @@
 #include <chrono>
 #include <cstdio>
 
+#if __cplusplus >= 201703L
+#include <charconv>
+#endif
+
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 
-char const random_ints_filename[] = "random_ints_1600000.txt";
+// https://stackoverflow.com/a/43870188/412080
+#define   LIKELY(condition) __builtin_expect(static_cast<bool>(condition), 1)
+#define UNLIKELY(condition) __builtin_expect(static_cast<bool>(condition), 0)
 
-void method_istream(int(&a)[1600000]) {
+char const random_ints_filename[] = "random_ints_1600000.txt";
+constexpr int ELEMENTS = 1600000;
+
+void method_istream(int(&a)[ELEMENTS]) {
     std::ios::sync_with_stdio(false);
     int n, m;
     std::cin >> n >> m;
@@ -22,12 +31,12 @@ void method_istream(int(&a)[1600000]) {
         std::cin >> a[i];
 }
 
-void method_scanf(int(&a)[1600000]) {
+void method_scanf(int(&a)[ELEMENTS]) {
     int n, m;
-    if(2 != std::scanf("%d %d", &n, &m))
+    if(UNLIKELY(2 != std::scanf("%d %d", &n, &m)))
         throw;
     for(int i = 0; i < n; ++i)
-        if(1 != std::scanf("%d", a + i))
+        if(UNLIKELY(1 != std::scanf("%d", a + i)))
             throw;
 }
 
@@ -39,9 +48,9 @@ char const fmt[step * 3] =
     "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d"
     ;
 
-void method_scanf_multi(int(&a)[1600000]) {
+void method_scanf_multi(int(&a)[ELEMENTS]) {
     int n, m;
-    if(2 != std::scanf("%d %d", &n, &m))
+    if(UNLIKELY(2 != std::scanf("%d %d", &n, &m)))
         throw;
 
     for(int i = 0; i < n; i += step) {
@@ -56,14 +65,14 @@ void method_scanf_multi(int(&a)[1600000]) {
                          b + 0x28, b + 0x29, b + 0x2a, b + 0x2b, b + 0x2c, b + 0x2d, b + 0x2e, b + 0x2f,
                          b + 0x30, b + 0x31, b + 0x32, b + 0x33, b + 0x34, b + 0x35, b + 0x36, b + 0x37,
                          b + 0x38, b + 0x39, b + 0x3a, b + 0x3b, b + 0x3c, b + 0x3d, b + 0x3e, b + 0x3f);
-        if(read != expected)
+        if(UNLIKELY(read != expected))
             throw;
     }
 }
 
-void method_getchar(int(&a)[1600000]) {
+void method_getchar_inline(int(&a)[ELEMENTS]) {
     int n, m;
-    if(2 != std::scanf("%d %d", &n, &m))
+    if(UNLIKELY(2 != std::scanf("%d %d", &n, &m)))
         throw;
 
     for(int i = 0; i < n; ++i) {
@@ -86,11 +95,11 @@ void method_getchar(int(&a)[1600000]) {
     }
 }
 
-inline int find_and_parse_int(char const*& begin, char const* end) {
+inline int int_parse_inline(char const*& begin, char const* end) {
     char const* p = begin;
     while(p != end && std::isspace(*p))
         ++p;
-    if(p == end)
+    if(UNLIKELY(p == end))
         throw;
     bool neg = *p == '-';
     p += neg;
@@ -105,27 +114,49 @@ inline int find_and_parse_int(char const*& begin, char const* end) {
     return neg ? -r : r;
 }
 
-void method_mmap_parse_faster(int(&a)[1600000]) {
+template<int(*parse_int)(char const*&, char const*)>
+inline void method_mmap_(int(&a)[ELEMENTS]) {
     int fd = open(random_ints_filename, O_RDONLY);
-    if(fd == -1)
+    if(UNLIKELY(fd == -1))
         throw;
     struct stat s;
-    if(fstat(fd, &s))
+    if(UNLIKELY(fstat(fd, &s)))
         throw;
     void* pfd = mmap(nullptr, s.st_size, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
-    if(pfd == MAP_FAILED)
+    if(UNLIKELY(pfd == MAP_FAILED))
         throw;
 
     char const* begin = static_cast<char const*>(pfd);
     char const* end = begin + s.st_size;
 
-    int n = find_and_parse_int(begin, end);
-    int m = find_and_parse_int(begin, end);
+    int n = parse_int(begin, end);
+    int m = parse_int(begin, end);
     static_cast<void>(m);
 
     for(int i = 0; i < n; ++i)
-        a[i] = find_and_parse_int(begin, end);
+        a[i] = parse_int(begin, end);
 }
+
+void method_mmap_parse_inline(int(&a)[ELEMENTS]) {
+    method_mmap_<int_parse_inline>(a);
+}
+
+#if __cplusplus >= 201703L
+inline int int_parse_charconv(char const*& begin, char const* end) {
+    int value;
+    while(begin != end && std::isspace(*begin))
+        ++begin;
+    auto r = std::from_chars(begin, end, value);
+    if(UNLIKELY(static_cast<unsigned>(r.ec)))
+        throw;
+    begin = r.ptr;
+    return value;
+}
+
+void method_mmap_parse_charconv(int(&a)[ELEMENTS]) {
+    method_mmap_<int_parse_charconv>(a);
+}
+#endif
 
 unsigned reverse_crc32(int const* begin, int const* end) {
     unsigned r = 0;
@@ -134,8 +165,26 @@ unsigned reverse_crc32(int const* begin, int const* end) {
     return r;
 }
 
-decltype(&method_istream) const methods[] = {&method_istream, &method_scanf, &method_scanf_multi, &method_getchar, &method_mmap_parse_faster};
-char const* names[] = {"iostream", "scanf", "scanf-multi", "getchar", "mmap-parse-faster"};
+decltype(&method_istream) const methods[] = {
+      &method_istream
+    , &method_scanf
+    , &method_scanf_multi
+    , &method_getchar_inline
+    , &method_mmap_parse_inline
+#if __cplusplus >= 201703L
+    , &method_mmap_parse_charconv
+#endif
+};
+char const* names[] = {
+      "iostream"
+    , "scanf"
+    , "scanf-multi"
+    , "getchar-inline"
+    , "mmap-parse-inline"
+#if __cplusplus >= 201703L
+    , "mmap-parse-charconv"
+#endif
+};
 constexpr int method_count = sizeof methods / sizeof *methods;
 
 int main() {
@@ -147,11 +196,11 @@ int main() {
         for(int run = 0; run < RUNS; ++run) {
             std::ifstream random_ints(random_ints_filename);
             auto old_buf = std::cin.rdbuf(random_ints.rdbuf());
-            if(!freopen(random_ints_filename, "rb", stdin))
+            if(UNLIKELY(!freopen(random_ints_filename, "rb", stdin)))
                 throw;
 
             auto t0 = std::chrono::high_resolution_clock::now();
-            int a[1600000];
+            int a[ELEMENTS];
             methods[method](a);
             auto t1 = std::chrono::high_resolution_clock::now();
 

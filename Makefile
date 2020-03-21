@@ -26,7 +26,7 @@ AR := ${AR.${TOOLSET}}
 
 CXXFLAGS.gcc.debug := -Og -fstack-protector-all -fno-omit-frame-pointer # -D_GLIBCXX_DEBUG
 CXXFLAGS.gcc.release := -O3 -march=native -ffast-math -DNDEBUG
-CXXFLAGS.gcc := -pthread -std=gnu++1z -march=native -W{all,extra,error} -g -fmessage-length=0 ${CXXFLAGS.gcc.${BUILD}}
+CXXFLAGS.gcc := -pthread -std=gnu++17 -march=native -W{all,extra,error} -g -fmessage-length=0 ${CXXFLAGS.gcc.${BUILD}}
 CXXFLAGS.gcc-8 := ${CXXFLAGS.gcc}
 
 CFLAGS.gcc := -pthread -march=native -W{all,extra} -g -fmessage-length=0 ${CXXFLAGS.gcc.${BUILD}}
@@ -34,7 +34,7 @@ CFLAGS.gcc-8 := ${CFLAGS.gcc}
 
 CXXFLAGS.clang.debug := -O0 -fstack-protector-all
 CXXFLAGS.clang.release := -O3 -march=native -ffast-math -DNDEBUG
-CXXFLAGS.clang := -pthread -std=gnu++1z -march=native -W{all,extra,error} -g -fmessage-length=0 ${CXXFLAGS.clang.${BUILD}}
+CXXFLAGS.clang := -pthread -std=gnu++17 -march=native -W{all,extra,error} -g -fmessage-length=0 ${CXXFLAGS.clang.${BUILD}}
 
 CXXFLAGS := ${CXXFLAGS.${TOOLSET}}
 CFLAGS := ${CFLAGS.${TOOLSET}}
