@@ -137,7 +137,7 @@ inline void method_mmap_(int(&a)[ELEMENTS]) {
         a[i] = parse_int(begin, end);
 }
 
-void method_mmap_parse_inline(int(&a)[ELEMENTS]) {
+void method_mmap_inline(int(&a)[ELEMENTS]) {
     method_mmap_<int_parse_inline>(a);
 }
 
@@ -153,7 +153,7 @@ inline int int_parse_charconv(char const*& begin, char const* end) {
     return value;
 }
 
-void method_mmap_parse_charconv(int(&a)[ELEMENTS]) {
+void method_mmap_charconv(int(&a)[ELEMENTS]) {
     method_mmap_<int_parse_charconv>(a);
 }
 #endif
@@ -170,9 +170,9 @@ decltype(&method_istream) const methods[] = {
     , &method_scanf
     , &method_scanf_multi
     , &method_getchar_inline
-    , &method_mmap_parse_inline
+    , &method_mmap_inline
 #if __cplusplus >= 201703L
-    , &method_mmap_parse_charconv
+    , &method_mmap_charconv
 #endif
 };
 char const* names[] = {
@@ -180,9 +180,9 @@ char const* names[] = {
     , "scanf"
     , "scanf-multi"
     , "getchar-inline"
-    , "mmap-parse-inline"
+    , "mmap-inline"
 #if __cplusplus >= 201703L
-    , "mmap-parse-charconv"
+    , "mmap-charconv"
 #endif
 };
 constexpr int method_count = sizeof methods / sizeof *methods;
