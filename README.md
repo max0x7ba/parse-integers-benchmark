@@ -1,5 +1,7 @@
 # parse-integers-benchmark
-Benchmarking reading and parsing integers from a file in C++. The methods benchmarked are:
+Benchmarking reading and parsing integers from a file in C++ using one thread only.
+
+The methods benchmarked are:
 
 * `getchar-inline` - call `std::getchar` and parse each `int` char-by-char.
 * `scanf` - call `std::scanf` to parse each `int`.
